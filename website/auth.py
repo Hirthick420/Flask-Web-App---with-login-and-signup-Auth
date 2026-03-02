@@ -1,11 +1,11 @@
 #This file has the auth routes like login and signup
-from flask import Blueprint 
+from flask import Blueprint, render_template
 
 auth = Blueprint('auth',__name__)
 
 @auth.route('/login')
 def login():
-    return "<p>Login successful <p>"
+    return render_template("login.html")
 
 @auth.route('/logout')
 def logout():
@@ -13,4 +13,4 @@ def logout():
 
 @auth.route('/sign-up')
 def signup():
-    return "<p> This is the signup page"
+    return render_template("sign_up.html")

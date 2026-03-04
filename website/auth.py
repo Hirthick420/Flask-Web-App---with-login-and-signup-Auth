@@ -3,6 +3,8 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for
 from .models import User
 from . import db
 
+from flask_login import login_required, login_user, logout_user, current_user
+#we access current state of website with current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 auth = Blueprint('auth',__name__)
@@ -17,6 +19,7 @@ def login():
         if user:
             if check_password_hash(user.password, password):
                 flash('Logged in Successfully', category='success')
+                login_user(user, remember= True) #Login in the user and remembers the state
                 return redirect(url_for('views.home'))
             else:
                 flash('Incorrect password', category='error')
@@ -24,11 +27,13 @@ def login():
             flash('Email doesn\'t exists', category='error')
 
 
-    return render_template("login.html")
+    return render_template("login.html", user = current_user)
 
 @auth.route('/logout')
+@login_required
 def logout():
-    return "<p>Logout succesful <p>"
+    logout_user()
+    return redirect(url_for('auth.login'))
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def signup():
@@ -56,9 +61,10 @@ def signup():
             new_user = User(email=email,first_name=first_name,password=generate_password_hash(password1,method='pbkdf2:sha256'))
             db.session.add(new_user)
             db.session.commit()
+            login_user(new_user)
             flash('Account created', category = 'success')
             return redirect(url_for('views.home')) #redirects to home page
             #add user to database
 
-    return render_template("sign_up.html")
+    return render_template("sign_up.html",user = current_user)
 
